@@ -31,18 +31,20 @@ class Network(nn.Module):
         return self.fc3(x)
 
 
-def process_state(observation):
-    # Объединяем и нормализуем координаты
-    return np.concatenate([
-        observation['agent'] / 9.0,  # нормализация к [0, 1]
-        observation['target'] / 9.0
-    ]).astype(np.float32)
-
-
 env = gym.make('gymnasium_maze/GridWorld-v0')
+
+
+def process_state(observation):
+    # Преобразуем все элементы в numpy arrays, если они ещё не являются таковыми
+    agent_pos = np.array(observation['agent'], dtype=np.float32) / 9.0
+    target_pos = np.array(observation['target'], dtype=np.float32) / 9.0
+    holes_pos = np.array(observation['holes'], dtype=np.float32).flatten() / 9.0
+    return np.concatenate([agent_pos, target_pos, holes_pos])
+
+
 # Для GridWorld нужно обработать словарное observation space
 # Мы будем объединять координаты агента и цели в один плоский вектор
-state_size = 4  # agent_x, agent_y, target_x, target_y
+state_size = 20  # agent_x, agent_y, target_x, target_y
 number_actions = env.action_space.n
 print('State size: ', state_size)
 print('Number of actions: ', number_actions)
@@ -80,9 +82,13 @@ for episode in range(1, number_episodes + 1):
     print('\rEpisode {}\tAverage Score: {:.2f}'.format(episode, np.mean(scores_on_100_episodes)), end="")
     if episode % 100 == 0:
         print('\rEpisode {}\tAverage Score: {:.2f}'.format(episode, np.mean(scores_on_100_episodes)))
-    if np.mean(scores_on_100_episodes) >= 9 and episode % 100 == 0:
+    if np.mean(scores_on_100_episodes) >= 98 and episode % 100 == 0:
         print('\nEnvironment solved in {:d} episodes!\tAverage Score: {:.2f}'.format(episode,
                                                                                      np.mean(scores_on_100_episodes)))
+        with open("agent.pkl", "wb") as fp:
+            pickle.dump(agent, fp)
+        break
+    if episode == number_episodes:
         with open("agent.pkl", "wb") as fp:
             pickle.dump(agent, fp)
         break

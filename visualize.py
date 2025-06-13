@@ -6,11 +6,11 @@ import gymnasium_maze
 
 
 def process_state(observation):
-    # Объединяем и нормализуем координаты
-    return np.concatenate([
-        observation['agent'] / 9.0,  # нормализация к [0, 1]
-        observation['target'] / 9.0
-    ]).astype(np.float32)
+    # Преобразуем все элементы в numpy arrays, если они ещё не являются таковыми
+    agent_pos = np.array(observation['agent'], dtype=np.float32) / 9.0
+    target_pos = np.array(observation['target'], dtype=np.float32) / 9.0
+    holes_pos = np.array(observation['holes'], dtype=np.float32).flatten() / 9.0
+    return np.concatenate([agent_pos, target_pos, holes_pos])
 
 
 with open("agent.pkl", "rb") as fp:
@@ -59,7 +59,7 @@ def show_video_of_model(agent, env_name, env_size=10):
         state = next_state
 
         # Ограничиваем максимальную длину видео
-        if len(frames) > 600:
+        if len(frames) > 80:
             done = True
 
     env.close()
