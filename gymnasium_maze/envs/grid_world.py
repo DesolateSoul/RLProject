@@ -18,12 +18,14 @@ class GridWorldEnv(gym.Env):
     def __init__(self, render_mode=None, size=10):
         self.size = size
         self.window_size = 512
+        self.vision_radius = 2  # Радиус обзора агента
 
+        # Пространство наблюдений теперь содержит только ближайшие дыры (максимум 8 в радиусе 2)
         self.observation_space = spaces.Dict(
             {
-                "agent": spaces.Box(0, size - 1, shape=(2,), dtype=np.int64),  # Явно укажите int64
+                "agent": spaces.Box(0, size - 1, shape=(2,), dtype=np.int64),
                 "target": spaces.Box(0, size - 1, shape=(2,), dtype=np.int64),
-                "holes": spaces.Box(0, size - 1, shape=(size - 2, 2), dtype=np.int64)
+                "visible_holes": spaces.Box(0, size - 1, shape=(8, 2), dtype=np.int64)  # Макс 8 дыр в радиусе 2
             }
         )
 
@@ -41,23 +43,69 @@ class GridWorldEnv(gym.Env):
         self._holes = None
 
     def _generate_holes(self):
-        """Генерирует по одной яме в каждом ряду, исключая старт и финиш"""
-        self._holes = []
-        for y in range(self.size):
-            if y == 0 or y == self.size - 1:  # Пропускаем ряды с агентом и целью
-                continue
-            x = self.np_random.integers(0, self.size - 1)
-            while (x == 0 and y == 0) or (x == self.size - 1 and y == self.size - 1):
-                x = self.np_random.integers(0, self.size)
-            self._holes.append([x, y])
-        # Преобразуем список в numpy array
-        return np.array(self._holes, dtype=np.int64)
+        """Генерация дыр с проверкой доступности старта и финиша"""
+        for _ in range(100):  # Максимум 100 попыток генерации
+            self._holes = []
+
+            # 1. Добавляем дыры по краям
+            for i in range(self.size):
+                self._holes.append([i, 0])  # Нижний край
+                self._holes.append([i, self.size - 1])  # Верхний край
+                self._holes.append([0, i])  # Левый край
+                self._holes.append([self.size - 1, i])  # Правый край
+
+            # 2. Добавляем случайные дыры внутри
+            for _ in range(self.size):
+                x, y = self.np_random.integers(1, self.size - 1, size=2)
+                if [x, y] not in self._holes:
+                    self._holes.append([x, y])
+
+            # Проверяем доступность старта и финиша
+            start_pos = np.array([1, 1])
+            target_pos = np.array([self.size - 2, self.size - 2])
+
+            if (not any(np.array_equal(start_pos, hole) for hole in self._holes) and
+                    not any(np.array_equal(target_pos, hole) for hole in self._holes) and
+                    self._is_position_valid(start_pos) and
+                    self._is_position_valid(target_pos)):
+                return np.array(self._holes, dtype=np.int64)
+
+        raise RuntimeError("Не удалось создать валидную карту после 100 попыток")
+
+    def _is_position_valid(self, pos):
+        """Проверяет, что позиция не окружена дырами со всех сторон"""
+        x, y = pos
+        directions = [np.array([1, 0]), np.array([-1, 0]),
+                      np.array([0, 1]), np.array([0, -1])]
+
+        # Проверяем наличие хотя бы одного свободного соседа
+        for direction in directions:
+            neighbor = pos + direction
+            if (0 <= neighbor[0] < self.size and
+                    0 <= neighbor[1] < self.size and
+                    not any(np.array_equal(neighbor, hole) for hole in self._holes)):
+                return True
+        return False
+
+    def _get_visible_holes(self, agent_pos):
+        """Возвращает только дыры в радиусе обзора агента"""
+        visible = []
+        for hole in self._holes:
+            if np.linalg.norm(agent_pos - hole, ord=1) <= self.vision_radius:
+                visible.append(hole)
+
+        # Дополняем нулями до 8 дыр (для фиксированного размера)
+        while len(visible) < 8:
+            visible.append([0, 0])  # Пустые позиции
+
+        return np.array(visible[:8], dtype=np.int64)  # Возвращаем не более 8 дыр
 
     def _get_obs(self):
+        visible_holes = self._get_visible_holes(self._agent_location)
         return {
             "agent": np.array(self._agent_location, dtype=np.int64),
             "target": np.array(self._target_location, dtype=np.int64),
-            "holes": np.array(self._holes, dtype=np.int64)  # Гарантируем numpy array
+            "visible_holes": visible_holes
         }
 
     def _get_info(self):
@@ -68,16 +116,20 @@ class GridWorldEnv(gym.Env):
 
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)
-        self._agent_location = np.array([0, 0], dtype=np.int64)  # Левая нижняя клетка
-        self._target_location = np.array([self.size - 1, self.size - 1], dtype=np.int64)  # Правая верхняя
-        self._holes = self._generate_holes()
 
-        observation = self._get_obs()
-        info = self._get_info()
+        # Агент в позиции (1, 1)
+        self._agent_location = np.array([1, 1], dtype=np.int64)
+
+        # Цель в позиции (size-2, size-2)
+        self._target_location = np.array([self.size - 2, self.size - 2], dtype=np.int64)
+
+        # Генерация дыр с проверками
+        self._generate_holes()
 
         if self.render_mode == "human":
             self._render_frame()
-        return observation, info
+
+        return self._get_obs(), self._get_info()
 
     def step(self, action):
         direction = self._action_to_direction[action]
@@ -115,36 +167,35 @@ class GridWorldEnv(gym.Env):
         canvas.fill((255, 255, 255))
         pix_square_size = self.window_size / self.size
 
-        # Рисуем ямы (черные квадраты)
+        # Рисуем дыры (черные квадраты)
         for hole in self._holes:
             pygame.draw.rect(
                 canvas,
                 (0, 0, 0),
                 pygame.Rect(
-                    pix_square_size * hole,
+                    (pix_square_size * hole[0], pix_square_size * hole[1]),  # Разделяем x и y
                     (pix_square_size, pix_square_size),
                 ),
             )
 
-        # Рисуем цель (красный квадрат)
+        # Остальной код рендеринга (цель, агент, сетка)
         pygame.draw.rect(
             canvas,
             (255, 0, 0),
             pygame.Rect(
-                pix_square_size * self._target_location,
+                (pix_square_size * self._target_location[0], pix_square_size * self._target_location[1]),
                 (pix_square_size, pix_square_size),
             ),
         )
 
-        # Рисуем агента (синий круг)
         pygame.draw.circle(
             canvas,
             (0, 0, 255),
-            (self._agent_location + 0.5) * pix_square_size,
+            ((self._agent_location[0] + 0.5) * pix_square_size,
+             (self._agent_location[1] + 0.5) * pix_square_size),
             pix_square_size / 3,
         )
 
-        # Рисуем сетку
         for x in range(self.size + 1):
             pygame.draw.line(
                 canvas,

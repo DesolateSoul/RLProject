@@ -6,11 +6,10 @@ import gymnasium_maze
 
 
 def process_state(observation):
-    # Преобразуем все элементы в numpy arrays, если они ещё не являются таковыми
-    agent_pos = np.array(observation['agent'], dtype=np.float32) / 9.0
-    target_pos = np.array(observation['target'], dtype=np.float32) / 9.0
-    holes_pos = np.array(observation['holes'], dtype=np.float32).flatten() / 9.0
-    return np.concatenate([agent_pos, target_pos, holes_pos])
+    agent_pos = observation['agent'] / 9
+    target_pos = observation['target'] / 9
+    visible_holes = observation['visible_holes'].flatten() / 9
+    return np.concatenate([agent_pos, target_pos, visible_holes]).astype(np.float32)
 
 
 with open("agent.pkl", "rb") as fp:
