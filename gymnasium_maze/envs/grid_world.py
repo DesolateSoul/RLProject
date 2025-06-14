@@ -141,8 +141,8 @@ class GridWorldEnv(gym.Env):
         in_hole = any(np.array_equal(self._agent_location, hole) for hole in self._holes)
         terminated = np.array_equal(self._agent_location, self._target_location)
 
-        # Награда: +100 за достижение цели, -1 за попадание в яму, -0.1 за каждый шаг
-        reward = 100 if terminated else (-100 if in_hole else -0.1)
+        # Награда: +50 за достижение цели, -10 за попадание в яму, -1 за каждый шаг
+        reward = 50 if terminated else (-10 if in_hole else -1)
 
         observation = self._get_obs()
         info = self._get_info()

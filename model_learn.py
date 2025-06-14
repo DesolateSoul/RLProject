@@ -82,7 +82,7 @@ for episode in range(1, number_episodes + 1):
     print('\rEpisode {}\tAverage Score: {:.2f}'.format(episode, np.mean(scores_on_100_episodes)), end="")
     if episode % 100 == 0:
         print('\rEpisode {}\tAverage Score: {:.2f}'.format(episode, np.mean(scores_on_100_episodes)))
-    if np.mean(scores_on_100_episodes) >= 98 and episode % 100 == 0:
+    if np.mean(scores_on_100_episodes) >= 30:
         print('\nEnvironment solved in {:d} episodes!\tAverage Score: {:.2f}'.format(episode,
                                                                                      np.mean(scores_on_100_episodes)))
         with open("agent.pkl", "wb") as fp:
