@@ -20,7 +20,7 @@ class GridWorldEnv(gym.Env):
         self.window_size = 512
         self.vision_radius = 2  # Радиус обзора агента
 
-        # Пространство наблюдений теперь содержит только ближайшие дыры (максимум 8 в радиусе 2)
+        # Пространство наблюдений теперь содержит только ближайшие препятствия (максимум 8 в радиусе 2)
         self.observation_space = spaces.Dict(
             {
                 "agent": spaces.Box(0, size - 1, shape=(2,), dtype=np.int64),
@@ -55,8 +55,10 @@ class GridWorldEnv(gym.Env):
                 self._holes.append([self.size - 1, i])  # Правый край
 
             # 2. Добавляем случайные дыры внутри
-            for _ in range(self.size):
+            for _ in range((self.size - 2) ** 2 // 4):
                 x, y = self.np_random.integers(1, self.size - 1, size=2)
+                while [x, y] in self._holes:
+                    x, y = self.np_random.integers(1, self.size - 1, size=2)
                 if [x, y] not in self._holes:
                     self._holes.append([x, y])
 
@@ -123,7 +125,7 @@ class GridWorldEnv(gym.Env):
         # Цель в позиции (size-2, size-2)
         self._target_location = np.array([self.size - 2, self.size - 2], dtype=np.int64)
 
-        # Генерация дыр с проверками
+        # Генерация препятствий с проверками
         self._generate_holes()
 
         if self.render_mode == "human":

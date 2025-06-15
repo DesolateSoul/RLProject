@@ -48,12 +48,11 @@ state_size = 20  # agent_x, agent_y, target_x, target_y
 number_actions = env.action_space.n
 print('State size: ', state_size)
 print('Number of actions: ', number_actions)
-# Initializing the DQN agent
 
+# Инициализация агента
 agent = Agent(state_size, number_actions)
 
-# Training the DQN agent
-
+# Обучение агента
 number_episodes = 2000
 maximum_number_timesteps_per_episode = 1000
 epsilon_starting_value = 1.0

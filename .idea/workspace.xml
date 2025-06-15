@@ -4,10 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ac5f1c63-6eb4-4398-a688-532d569a3232" name="Changes" comment="First version">
+    <list default="true" id="ac5f1c63-6eb4-4398-a688-532d569a3232" name="Changes" comment="Changed network architecture">
+      <change afterPath="$PROJECT_DIR$/testing.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/agent.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/gymnasium_maze/envs/grid_world.py" beforeDir="false" afterPath="$PROJECT_DIR$/gymnasium_maze/envs/grid_world.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/model_learn.py" beforeDir="false" afterPath="$PROJECT_DIR$/model_learn.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/play_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/play_test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/replay_memory.py" beforeDir="false" afterPath="$PROJECT_DIR$/replay_memory.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/visualize.py" beforeDir="false" afterPath="$PROJECT_DIR$/visualize.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -24,6 +28,7 @@
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RESET_MODE" value="MIXED" />
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
@@ -47,6 +52,7 @@
     &quot;Python.model_learn.executor&quot;: &quot;Run&quot;,
     &quot;Python.play_test (1).executor&quot;: &quot;Run&quot;,
     &quot;Python.run_this.executor&quot;: &quot;Run&quot;,
+    &quot;Python.testing.executor&quot;: &quot;Run&quot;,
     &quot;Python.visualize (1).executor&quot;: &quot;Run&quot;,
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
@@ -123,7 +129,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="run_this" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="testing" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="RLProject" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -136,7 +142,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/run_this.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/testing.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -192,10 +198,10 @@
     <recent_temporary>
       <list>
         <item itemvalue="Python.visualize (1)" />
-        <item itemvalue="Python.model_learn" />
         <item itemvalue="Python.play_test (1)" />
+        <item itemvalue="Python.testing" />
+        <item itemvalue="Python.model_learn" />
         <item itemvalue="Python.visualize" />
-        <item itemvalue="Python.run_this" />
       </list>
     </recent_temporary>
   </component>

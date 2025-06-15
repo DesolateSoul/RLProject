@@ -1,7 +1,6 @@
 import torch
 import random
 import numpy as np
-# Implementing Experience Replay
 
 
 class ReplayMemory(object):

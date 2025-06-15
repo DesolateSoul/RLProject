@@ -75,4 +75,4 @@ def show_video_of_model(agent, env_name, env_size=10):
 
 
 # Запускаем создание видео
-show_video_of_model(agent, 'gymnasium_maze/GridWorld-v0', env_size=10)
+show_video_of_model(agent, 'gymnasium_maze/GridWorld-v0', env_size=11)

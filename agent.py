@@ -6,10 +6,6 @@ from network import Network
 from replay_memory import ReplayMemory
 import torch.nn.functional as F
 
-# Implementing the DQN class
-
-
-# Initializing the hyperparameters
 
 learning_rate = 5e-4
 minibatch_size = 100
