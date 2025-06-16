@@ -5,10 +5,13 @@ import gymnasium as gym
 import gymnasium_maze
 
 
+SIZE = 10
+
+
 def process_state(observation):
-    agent_pos = observation['agent'] / 9
-    target_pos = observation['target'] / 9
-    visible_holes = observation['visible_holes'].flatten() / 9
+    agent_pos = observation['agent'] / (SIZE - 1)
+    target_pos = observation['target'] / (SIZE - 1)
+    visible_holes = observation['visible_holes'].flatten() / (SIZE - 1)
     return np.concatenate([agent_pos, target_pos, visible_holes]).astype(np.float32)
 
 
@@ -75,4 +78,4 @@ def show_video_of_model(agent, env_name, env_size=10):
 
 
 # Запускаем создание видео
-show_video_of_model(agent, 'gymnasium_maze/GridWorld-v0', env_size=11)
+show_video_of_model(agent, 'gymnasium_maze/GridWorld-v0', env_size=SIZE)

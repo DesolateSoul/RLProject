@@ -16,11 +16,14 @@ import gymnasium_maze
 from agent import Agent
 
 
+SIZE = 11
+
+
 def process_state(observation):
     """Нормализует наблюдение для нейросетевого агента"""
-    agent_pos = np.array(observation['agent'], dtype=np.float32) / 9.0
-    target_pos = np.array(observation['target'], dtype=np.float32) / 9.0
-    holes_pos = np.array(observation['visible_holes'], dtype=np.float32).flatten() / 9.0
+    agent_pos = np.array(observation['agent'], dtype=np.float32) / (SIZE - 1)
+    target_pos = np.array(observation['target'], dtype=np.float32) / (SIZE - 1)
+    holes_pos = np.array(observation['visible_holes'], dtype=np.float32).flatten() / (SIZE - 1)
     return np.concatenate([agent_pos, target_pos, holes_pos])
 
 
@@ -107,7 +110,7 @@ def test_agent(env, agent, episodes=100):
 
 
 # Создаем среду и агента
-env = gym.make('gymnasium_maze/GridWorld-v0', size=12)
+env = gym.make('gymnasium_maze/GridWorld-v0', size=SIZE)
 with open("agent.pkl", "rb") as fp:
     agent = pickle.load(fp)
 

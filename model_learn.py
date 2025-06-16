@@ -13,6 +13,8 @@ import gymnasium as gym
 import gymnasium_maze
 from agent import Agent
 
+SIZE = 10
+
 
 class Network(nn.Module):
 
@@ -31,14 +33,14 @@ class Network(nn.Module):
         return self.fc3(x)
 
 
-env = gym.make('gymnasium_maze/GridWorld-v0')
+env = gym.make('gymnasium_maze/GridWorld-v0', size=SIZE)
 
 
 def process_state(observation):
     # Преобразуем все элементы в numpy arrays, если они ещё не являются таковыми
-    agent_pos = np.array(observation['agent'], dtype=np.float32) / 9.0
-    target_pos = np.array(observation['target'], dtype=np.float32) / 9.0
-    holes_pos = np.array(observation['visible_holes'], dtype=np.float32).flatten() / 9.0
+    agent_pos = np.array(observation['agent'], dtype=np.float32) / (SIZE - 1)
+    target_pos = np.array(observation['target'], dtype=np.float32) / (SIZE - 1)
+    holes_pos = np.array(observation['visible_holes'], dtype=np.float32).flatten() / (SIZE - 1)
     return np.concatenate([agent_pos, target_pos, holes_pos])
 
 
